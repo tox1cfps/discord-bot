@@ -1,0 +1,57 @@
+# ===== Sistema Operacional =====
+.DS_Store
+Thumbs.db
+
+# ===== Editor / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+
+# ===== Node.js / React / Vite =====
+node_modules/
+dist/
+build/
+.cache/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Env / Secrets =====
+.env
+.env.local
+.env.*.local
+
+# ===== Go =====
+bin/
+tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Logs =====
+logs/
+*.log
+
+# ===== Coverage / Test =====
+coverage/
+*.lcov
+
+# ===== Arquivos de build gerais =====
+*.map
+*.zip
+*.tar.gz
+
+# ===== Outros =====
+*.bak
+*.tmp
