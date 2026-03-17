@@ -6,7 +6,20 @@ from discord.ext import commands
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+from flask import flask
+import threading
 import datetime
+
+app = Flask(__name__)
+@app.route("/")
+def home():
+    return "bot online"
+
+def run():
+    port =  int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+threading.Thread(target=run).start()
 
 load_dotenv()
 
