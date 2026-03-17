@@ -29,6 +29,19 @@ sessions = {}
 cooldown_raio_global = None
 
 @bot.command()
+async def ajuda(ctx):
+    embeed =  discord.Embed(
+        title="TODOS OS COMANDOS!",
+        description="!perguntar (duvida) - Te respondo uma perguntar\n"
+        "!jornal - Cria o jornal do dia com o que rolou no servidor.\n"
+        "!mundo - Eu volto com as noticias mais importantes do dia\n"
+        "!raio - Expulso um da sala.\n"
+        "$missao - Te digo minha missão secreta..."
+    )
+
+    await ctx.reply(embed=embeed)
+
+@bot.command()
 async def perguntar(ctx, *, pergunta):
     canal_id = ctx.channel.id
 
