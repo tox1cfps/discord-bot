@@ -36,8 +36,10 @@ async def ajuda(ctx):
         "!jornal - Cria o jornal do dia com o que rolou no servidor.\n"
         "!mundo - Eu volto com as noticias mais importantes do dia\n"
         "!raio - Expulso um da sala.\n"
-        "$missao - Te digo minha missão secreta..."
+        "$missao - Te digo minha missão secreta...",
+        color=0x3498db,
     )
+    embeed.set_footer(text="Cuidado com as mentiras...")
 
     await ctx.reply(embed=embeed)
 
