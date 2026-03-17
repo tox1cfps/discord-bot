@@ -22,7 +22,6 @@ def run():
 threading.Thread(target=run).start()
 
 load_dotenv()
-bot.run(BOT_TOKEN)
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 API_KEY = os.getenv('API_KEY')
@@ -315,4 +314,6 @@ async def on_message(message):
         await message.channel.send('Espalhar o máximo de mentiras possiveis')
 
     await bot.process_commands(message)
+
+bot.run(BOT_TOKEN)
 
