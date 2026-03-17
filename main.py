@@ -37,12 +37,19 @@ async def perguntar(ctx, *, pergunta):
 
     async with ctx.typing():
         try:
-            response = chat.send_message(pergunta)
-            
-            if len(response.text) > 2000:
-                await ctx.send(response.text[:1990] + "...")
-            else:
-                await ctx.send(response.text)
+            response = chat.send_message(
+                pergunta,
+                config=types.GenerateContentConfig(
+                    max_output_tokens=2048
+                )
+            )
+
+            texto = response.text
+
+            partes = [texto[i:i+1900] for i in range(0, len(texto), 1900)]
+
+            for i, parte in enumerate(partes, 1):
+                await ctx.send(f"**Parte {i}/{len(partes)}**\n{parte}")
 
         except Exception as e:
             await ctx.send(f"Erro na memória: {e}")
