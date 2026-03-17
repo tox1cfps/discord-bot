@@ -26,7 +26,7 @@ async def on_ready():
 
 sessions = {}
 
-cooldown_raio = {}
+cooldown_raio_global = None
 
 @bot.command()
 async def perguntar(ctx, *, pergunta):
@@ -212,19 +212,19 @@ async def mundo(ctx):
             await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
 @bot.command()
 async def raio(ctx):
-    user_id = ctx.author.id
+    global cooldown_raio_global 
+
     agora = datetime.datetime.now()
 
-    if user_id in cooldown_raio:
-        ultimo_uso = cooldown_raio[user_id]
-        tempo_passado = agora - ultimo_uso
+    if cooldown_raio_global is not None:
+        tempo_passado = agora - cooldown_raio_global
 
         if tempo_passado < datetime.timedelta(hours=1):
             restante = datetime.timedelta(hours=1) - tempo_passado
             minutos = int(restante.total_seconds() // 60)
 
             return await ctx.send(
-                f"⏳ Calma aí {ctx.author.mention}, você só pode usar o raio novamente em {minutos} minutos!"
+                f"⏳ O raio está recarregando! Aguarde {minutos} minutos para usar novamente."
             )
 
     if ctx.author.voice is None:
@@ -249,7 +249,7 @@ async def raio(ctx):
 
         await ctx.send(random.choice(mensagens))
 
-        cooldown_raio[user_id] = agora
+        cooldown_raio_global = agora
 
     except discord.Forbidden:
         await ctx.send("Eu não tenho permissão de 'Mover Membros' para fazer isso!")
@@ -259,7 +259,6 @@ async def raio(ctx):
 @bot.command()
 async def bomdia(ctx):
     async with ctx.typing():
-        # Prompt focado em NOTÍCIAS GERAIS do dia/ontem
         prompt_sp = f"""
         Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
         Sua tarefa é atuar como um locutor de rádio extremamente animado e bem-informado, focado exclusivamente na cidade de São Paulo.
@@ -284,7 +283,6 @@ async def bomdia(ctx):
         """
         
         try:
-            # Ativando a busca do Google
             ferramenta_busca = types.Tool(
                 google_search=types.GoogleSearch()
             )
@@ -299,7 +297,6 @@ async def bomdia(ctx):
 
             texto_mundo = response.text
 
-            # Tratamento de tamanho do texto (Embed vs Mensagem Normal)
             if len(texto_mundo) <= 4000:
                 embed = discord.Embed(
                     title="🌐 Bom Dia Pira News",
@@ -311,12 +308,10 @@ async def bomdia(ctx):
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("🌐 **BOM DIA PIRA NEWS** (Edição Completa)")
-                # Divide o texto se for muito grande
                 for i in range(0, len(texto_mundo), 1900):
                     await ctx.send(texto_mundo[i:i+1900])
 
         except Exception as e:
-            # Mensagem de erro personalizada
             await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
 
 @bot.event
