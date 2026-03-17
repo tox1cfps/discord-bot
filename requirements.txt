@@ -1,5 +1,3 @@
 discord.py
 google-genai
-dotenv
-datetime
-os
+python-dotenv
