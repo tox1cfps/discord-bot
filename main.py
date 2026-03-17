@@ -26,6 +26,8 @@ async def on_ready():
 
 sessions = {}
 
+cooldown_raio = {}
+
 @bot.command()
 async def perguntar(ctx, *, pergunta):
     canal_id = ctx.channel.id
@@ -207,10 +209,24 @@ async def mundo(ctx):
                     await ctx.send(texto_mundo[i:i+1900])
 
         except Exception as e:
-            # Mensagem de erro personalizada
             await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
 @bot.command()
 async def raio(ctx):
+    user_id = ctx.author.id
+    agora = datetime.datetime.now()
+
+    if user_id in cooldown_raio:
+        ultimo_uso = cooldown_raio[user_id]
+        tempo_passado = agora - ultimo_uso
+
+        if tempo_passado < datetime.timedelta(hours=1):
+            restante = datetime.timedelta(hours=1) - tempo_passado
+            minutos = int(restante.total_seconds() // 60)
+
+            return await ctx.send(
+                f"⏳ Calma aí {ctx.author.mention}, você só pode usar o raio novamente em {minutos} minutos!"
+            )
+
     if ctx.author.voice is None:
         return await ctx.send("Você precisa estar em um canal de voz para usar esse comando!")
 
@@ -224,13 +240,16 @@ async def raio(ctx):
 
     try:
         await alvo.move_to(None)
-        
+
         mensagens = [
             f"🎯 O destino escolheu {alvo.mention}. Tchau tchau!",
             f"⚡ {alvo.mention} foi atingido pelo raio da desconexão!",
             f"🚪 {alvo.mention} foi convidado a se retirar... à força."
         ]
+
         await ctx.send(random.choice(mensagens))
+
+        cooldown_raio[user_id] = agora
 
     except discord.Forbidden:
         await ctx.send("Eu não tenho permissão de 'Mover Membros' para fazer isso!")
