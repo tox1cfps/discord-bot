@@ -1,6 +1,7 @@
 
 import os
 import discord
+import random
 from discord.ext import commands
 from google import genai
 from google.genai import types
@@ -141,6 +142,155 @@ async def paulistao(ctx):
 
         except Exception as e:
                 await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
+
+@bot.command()
+async def mundo(ctx):
+    async with ctx.typing():
+        # Prompt focado em NOTÍCIAS GERAIS do dia/ontem
+        prompt_mundo = f"""
+        Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
+        Sua tarefa é atuar como um correspondente internacional de inteligência artificial.
+
+        PESQUISE E RESUMA:
+        1. As 3 notícias globais mais importantes que aconteceram entre ontem e hoje.
+        2. Um avanço tecnológico ou descoberta científica anunciada nessas últimas 24h.
+        3. Uma notícia curiosa, bizarra ou "leve" para descontrair.
+
+        DIRETRIZES DE FORMATAÇÃO:
+        - Use títulos em negrito.
+        - Use bullet points para facilitar a leitura rápida.
+        - Seja conciso: não mais que 3 frases por notícia.
+        - Sempre que possível, cite a fonte (ex: Fonte: BBC, Reuters, TechCrunch).
+
+        ⚠️ IMPORTANTE: Não invente notícias. Se a busca falhar, relate os temas que estão dominando as redes sociais hoje.
+        - CRÍTICO: Priorize notícias de 2026. Se a notícia citar nomes de pessoas falecidas ou eventos de anos anteriores, descarte e procure outra.
+        """
+        
+        try:
+            # Ativando a busca do Google
+            ferramenta_busca = types.Tool(
+                google_search=types.GoogleSearch()
+            )
+
+            response = client_ai.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt_mundo,
+                config=types.GenerateContentConfig(
+                    tools=[ferramenta_busca]
+                )
+            )
+
+            texto_mundo = response.text
+
+            # Tratamento de tamanho do texto (Embed vs Mensagem Normal)
+            if len(texto_mundo) <= 4000:
+                embed = discord.Embed(
+                    title="🌐 Giro Global Pira News",
+                    description=texto_mundo,
+                    color=0x2ecc71, # Verde "notícia"
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("🌐 **GIRO GLOBAL PIRA NEWS** (Edição Completa)")
+                # Divide o texto se for muito grande
+                for i in range(0, len(texto_mundo), 1900):
+                    await ctx.send(texto_mundo[i:i+1900])
+
+        except Exception as e:
+            # Mensagem de erro personalizada
+            await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
+@bot.command()
+async def raio(ctx):
+    if ctx.author.voice is None:
+        return await ctx.send("Você precisa estar em um canal de voz para usar esse comando!")
+
+    canal = ctx.author.voice.channel
+    membros = canal.members
+
+    if len(membros) < 2:
+        return await ctx.send("Não há membros suficientes no canal para um sorteio!")
+
+    alvo = random.choice([m for m in membros if not m.bot])
+
+    try:
+        await alvo.move_to(None)
+        
+        mensagens = [
+            f"🎯 O destino escolheu {alvo.mention}. Tchau tchau!",
+            f"⚡ {alvo.mention} foi atingido pelo raio da desconexão!",
+            f"🚪 {alvo.mention} foi convidado a se retirar... à força."
+        ]
+        await ctx.send(random.choice(mensagens))
+
+    except discord.Forbidden:
+        await ctx.send("Eu não tenho permissão de 'Mover Membros' para fazer isso!")
+    except Exception as e:
+        await ctx.send(f"Ocorreu um erro: {e}")
+
+@bot.command()
+async def bomdia(ctx):
+    async with ctx.typing():
+        # Prompt focado em NOTÍCIAS GERAIS do dia/ontem
+        prompt_sp = f"""
+        Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
+        Sua tarefa é atuar como um locutor de rádio extremamente animado e bem-informado, focado exclusivamente na cidade de São Paulo.
+
+        SAUDAÇÃO E AMBIENTAÇÃO:
+        1. Comece com um "Bom dia, Pira News!" cheio de energia, mencionando a data de hoje ({datetime.date.today().strftime('%d/%m/%Y')}).
+        2. Informe a previsão do tempo para a capital paulista (Temperatura atual e variação para o dia).
+        3. Dê um panorama rápido sobre a situação das principais linhas de Metrô, CPTM e trânsito (considere apenas a capital).
+        4. No final sempre diga que o luiz ja acordou espalhando mentiras.
+
+        DIRETRIZES DE ESTILO:
+        - Use um tom vibrante, acolhedor e levemente bem-humorado (estilo "voz da cidade").
+        - Use emojis para pontuar as informações de clima e transporte.
+        - Seja direto: o paulistano tem pressa, então a informação deve ser clara.
+
+        REGRAS DE CONTEÚDO:
+        - **Clima:** Foque na temperatura e se há necessidade de levar guarda-chuva ou blusa.
+        - **Transporte:** Se houver greves, paralisações ou falhas graves, destaque com um aviso de "Atenção".
+        - **Localização:** Ignore notícias de outras cidades ou do interior; o foco é 100% Capital.
+
+        ⚠️ IMPORTANTE: Baseie-se em dados reais de hoje, 2026. Se houver incerteza sobre alguma linha específica, use termos como "Até o momento, as principais vias operam sem intercorrências".
+        """
+        
+        try:
+            # Ativando a busca do Google
+            ferramenta_busca = types.Tool(
+                google_search=types.GoogleSearch()
+            )
+
+            response = client_ai.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt_sp,
+                config=types.GenerateContentConfig(
+                    tools=[ferramenta_busca]
+                )
+            )
+
+            texto_mundo = response.text
+
+            # Tratamento de tamanho do texto (Embed vs Mensagem Normal)
+            if len(texto_mundo) <= 4000:
+                embed = discord.Embed(
+                    title="🌐 Bom Dia Pira News",
+                    description=texto_mundo,
+                    color=0x2ecc71, # Verde "notícia"
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send("🌐 **BOM DIA PIRA NEWS** (Edição Completa)")
+                # Divide o texto se for muito grande
+                for i in range(0, len(texto_mundo), 1900):
+                    await ctx.send(texto_mundo[i:i+1900])
+
+        except Exception as e:
+            # Mensagem de erro personalizada
+            await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
 
 @bot.event
 async def on_message(message):
