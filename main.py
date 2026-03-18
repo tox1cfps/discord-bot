@@ -157,7 +157,7 @@ async def brasileirao(ctx):
             )
 
             response = client_ai.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.5-flash",
                 contents=prompt_brasileirao,
                 config=types.GenerateContentConfig(
                     tools=[ferramenta_busca]
