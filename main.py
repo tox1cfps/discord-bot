@@ -253,7 +253,7 @@ async def raio(ctx):
         if tempo_passado < datetime.timedelta(hours=1):
             restante = datetime.timedelta(hours=1) - tempo_passado
             minutos = int(restante.total_seconds() // 60)
-
+            await ctx.message.delete()
             return await ctx.send(
                 f"⏳ O raio está recarregando! Aguarde {minutos} minutos para usar novamente."
             )
