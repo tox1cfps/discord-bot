@@ -122,6 +122,7 @@ async def jornal(ctx, limite: int = 100):
         except Exception as e:
             await ctx.send(f"Erro ao gerar o jornal: {e}")
 
+@bot.command()
 async def brasileirao(ctx):
     async with ctx.typing():
         # Prompt dinâmico que se adapta à data atual (Março de 2026)
