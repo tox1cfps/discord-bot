@@ -122,27 +122,41 @@ async def jornal(ctx, limite: int = 100):
         except Exception as e:
             await ctx.send(f"Erro ao gerar o jornal: {e}")
 
-@bot.command()
-async def paulistao(ctx):
+async def brasileirao(ctx):
     async with ctx.typing():
-        prompt_brasileirao = """
-            Pesquise os resultados da última rodada do Paulistão 2026.
-            Com base nos resultados reais encontrados, crie um jornal esportivo rápido.
-            Inclua: 
-            1. Os principais placares.
-            2. Quem subiu ou desceu na tabela (se houver essa info).
-            3. Use um tom de narrador esportivo entusiasmado.
-            ⚠️ Não invente resultados. Se não encontrar a info, diga que o estagiário perdeu os dados.
-            Verifique especificamente o Site do Globo Esporte ou a tabela oficial da CBF para garantir a precisão dos dados.
-            Apresente os resultados da rodada em uma tabela formatada em Markdown para facilitar a leitura.
+        # Prompt dinâmico que se adapta à data atual (Março de 2026)
+        prompt_brasileirao = f"""
+            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+            Você é um assistente de notícias esportivas para o canal 'PIRA NEWS'.
+            
+            TAREFA:
+            1. Pesquise a situação atual do Brasileirão Série A 2026.
+            2. Identifique qual foi a última rodada finalizada e quais são os jogos da rodada atual/próxima.
+            3. Gere um boletim com tom de narrador de rádio (ex: 'OLHO NO LANCE!', 'HAJA CORAÇÃO!').
+            
+            REGRAS DE FORMATAÇÃO (OBRIGATÓRIO):
+            - TABELA: Crie uma tabela Markdown com as colunas: | Pos | Time | Pts | J | SG |. 
+            - Use as siglas dos times se a tabela ficar larga.
+            - Liste apenas o G-4 e o Z-4 para manter o embed legível no Discord.
+            - Se não encontrar dados reais de 2026, diga que 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
+
+            ESTRUTURA DO TEXTO:
+            ## 🏆 GIRO DO BRASILEIRÃO 2026
+            [Texto de narração sobre a liderança e a briga lá embaixo]
+            
+            [Tabela Markdown]
+            
+            ### 🕒 PRÓXIMOS CONFRONTOS
+            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário]
             """
+            
         try:
             ferramenta_busca = types.Tool(
                 google_search=types.GoogleSearch()
             )
 
             response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-2.0-flash",
                 contents=prompt_brasileirao,
                 config=types.GenerateContentConfig(
                     tools=[ferramenta_busca]
@@ -152,21 +166,22 @@ async def paulistao(ctx):
             texto_brasileirao = response.text
 
             if len(texto_brasileirao) <= 4000:
-                    embed = discord.Embed(
-                        title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
-                        description=texto_brasileirao,
-                        color=0x3498db,
-                        timestamp=datetime.datetime.now()
-                    )
-                    await ctx.send(embed=embed)
+                embed = discord.Embed(
+                    title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
+                    description=texto_brasileirao,
+                    color=0x2ecc71, # Verde gramado
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Dados atualizados em tempo real")
+                await ctx.send(embed=embed)
             else:
-                    await ctx.send("📰 **EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO** (Edição Especial Longa)")
-
-                    for i in range(0, len(texto_brasileirao), 1900):
-                        await ctx.send(texto_brasileirao[i:i+1900])
+                # Caso o texto exceda o limite, envia em partes
+                partes = [texto_brasileirao[i:i+1900] for i in range(0, len(texto_brasileirao), 1900)]
+                for parte in partes:
+                    await ctx.send(parte)
 
         except Exception as e:
-                await ctx.send(f"Luiz está mentindo mais uma vez: {e}")
+            await ctx.send(f"O Luiz está mentindo mais uma vez: {e}")
 
 @bot.command()
 async def mundo(ctx):
