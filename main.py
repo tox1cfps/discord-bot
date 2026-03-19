@@ -185,29 +185,30 @@ async def brasileirao(ctx):
 
 @bot.command()
 async def tabela(ctx):
-    prompt_tabela = f"""
-            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
-            Você é um especialista em dados esportivos.
+    async with ctx.typing():
+        prompt_tabela = f"""
+                Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+                Você é um especialista em dados esportivos.
 
-            TAREFA:
-            1. Pesquise a tabela de classificação atualizada do Brasileirão Série A 2026.
-            2. Gere EXCLUSIVAMENTE uma tabela em Markdown com TODOS os 20 times.
-            3. Use as colunas: | Pos | Time | Pts | J | V | E | D | SG |
-            
-            REGRAS DE FORMATAÇÃO:
-            - Retorne APENAS a tabela. Não escreva saudações, análises ou comentários.
-            - Se a informação não for encontrada, retorne apenas: 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
-            - Use nomes curtos ou siglas para os times (ex: 'Palmeiras' em vez de 'Sociedade Esportiva Palmeiras') para não quebrar a visualização no Discord.
-            - Certifique-se de que a tabela esteja envolvida em um bloco de código Markdown (```) para garantir fonte monoespaçada.
+                TAREFA:
+                1. Pesquise a tabela de classificação atualizada do Brasileirão Série A 2026.
+                2. Gere EXCLUSIVAMENTE uma tabela em Markdown com TODOS os 20 times.
+                3. Use as colunas: | Pos | Time | Pts | J | V | E | D | SG |
+                
+                REGRAS DE FORMATAÇÃO:
+                - Retorne APENAS a tabela. Não escreva saudações, análises ou comentários.
+                - Se a informação não for encontrada, retorne apenas: 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
+                - Use nomes curtos ou siglas para os times (ex: 'Palmeiras' em vez de 'Sociedade Esportiva Palmeiras') para não quebrar a visualização no Discord.
+                - Certifique-se de que a tabela esteja envolvida em um bloco de código Markdown (```) para garantir fonte monoespaçada.
 
-            ESTRUTURA DE SAÍDA:
-            ### 🏆 TABELA BRASILEIRÃO 2026 - RODADA ATUAL
-            ```
-            | Pos | Time | Pts | J | V | E | D | SG |
-            |-----|------|-----|---|---|---|---|----|
-            ... (todos os 20 times)
-            ```
-            """
+                ESTRUTURA DE SAÍDA:
+                ### 🏆 TABELA BRASILEIRÃO 2026 - RODADA ATUAL
+                ```
+                | Pos | Time | Pts | J | V | E | D | SG |
+                |-----|------|-----|---|---|---|---|----|
+                ... (todos os 20 times)
+                ```
+                """
 
              
     try:
