@@ -6,7 +6,6 @@ from discord.ext import commands
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-import threading
 import datetime
 
 load_dotenv()
@@ -127,7 +126,6 @@ async def jornal(ctx, limite: int = 100):
 @bot.command()
 async def brasileirao(ctx):
     async with ctx.typing():
-        # Prompt dinâmico que se adapta à data atual (Março de 2026)
         prompt_brasileirao = f"""
             Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
             Você é um assistente de notícias esportivas para o canal 'PIRA NEWS'.
@@ -172,13 +170,12 @@ async def brasileirao(ctx):
                 embed = discord.Embed(
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
                     description=texto_brasileirao,
-                    color=0x2ecc71, # Verde gramado
+                    color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
                 embed.set_footer(text="Dados atualizados em tempo real")
                 await ctx.send(embed=embed)
             else:
-                # Caso o texto exceda o limite, envia em partes
                 partes = [texto_brasileirao[i:i+1900] for i in range(0, len(texto_brasileirao), 1900)]
                 for parte in partes:
                     await ctx.send(parte)
@@ -187,9 +184,68 @@ async def brasileirao(ctx):
             await ctx.send(f"O Luiz está mentindo mais uma vez: {e}")
 
 @bot.command()
+async def tabela(ctx):
+    prompt_tabela = f"""
+            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+            Você é um especialista em dados esportivos.
+
+            TAREFA:
+            1. Pesquise a tabela de classificação atualizada do Brasileirão Série A 2026.
+            2. Gere EXCLUSIVAMENTE uma tabela em Markdown com TODOS os 20 times.
+            3. Use as colunas: | Pos | Time | Pts | J | V | E | D | SG |
+            
+            REGRAS DE FORMATAÇÃO:
+            - Retorne APENAS a tabela. Não escreva saudações, análises ou comentários.
+            - Se a informação não for encontrada, retorne apenas: 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
+            - Use nomes curtos ou siglas para os times (ex: 'Palmeiras' em vez de 'Sociedade Esportiva Palmeiras') para não quebrar a visualização no Discord.
+            - Certifique-se de que a tabela esteja envolvida em um bloco de código Markdown (```) para garantir fonte monoespaçada.
+
+            ESTRUTURA DE SAÍDA:
+            ### 🏆 TABELA BRASILEIRÃO 2026 - RODADA ATUAL
+            ```
+            | Pos | Time | Pts | J | V | E | D | SG |
+            |-----|------|-----|---|---|---|---|----|
+            ... (todos os 20 times)
+            ```
+            """
+
+             
+    try:
+            ferramenta_busca = types.Tool(
+                google_search=types.GoogleSearch()
+            )
+
+            response = client_ai.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt_tabela,
+                config=types.GenerateContentConfig(
+                    tools=[ferramenta_busca]
+                )
+            )
+
+            texto_brasileirao = response.text
+
+            if len(texto_brasileirao) <= 4000:
+                embed = discord.Embed(
+                    title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
+                    description=texto_brasileirao,
+                    color=0x2ecc71, 
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Dados atualizados em tempo real")
+                await ctx.send(embed=embed)
+            else:
+                partes = [texto_brasileirao[i:i+1900] for i in range(0, len(texto_brasileirao), 1900)]
+                for parte in partes:
+                    await ctx.send(parte)
+
+    except Exception as e:
+            await ctx.send(f"O Luiz está mentindo mais uma vez: {e}")
+    
+
+@bot.command()
 async def mundo(ctx):
     async with ctx.typing():
-        # Prompt focado em NOTÍCIAS GERAIS do dia/ontem
         prompt_mundo = f"""
         Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
         Sua tarefa é atuar como um correspondente internacional de inteligência artificial.
@@ -210,7 +266,6 @@ async def mundo(ctx):
         """
         
         try:
-            # Ativando a busca do Google
             ferramenta_busca = types.Tool(
                 google_search=types.GoogleSearch()
             )
@@ -225,19 +280,17 @@ async def mundo(ctx):
 
             texto_mundo = response.text
 
-            # Tratamento de tamanho do texto (Embed vs Mensagem Normal)
             if len(texto_mundo) <= 4000:
                 embed = discord.Embed(
                     title="🌐 Giro Global Pira News",
                     description=texto_mundo,
-                    color=0x2ecc71, # Verde "notícia"
+                    color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
                 embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("🌐 **GIRO GLOBAL PIRA NEWS** (Edição Completa)")
-                # Divide o texto se for muito grande
                 for i in range(0, len(texto_mundo), 1900):
                     await ctx.send(texto_mundo[i:i+1900])
 
