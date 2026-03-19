@@ -133,14 +133,20 @@ async def brasileirao(ctx):
             
             TAREFA:
             1. Pesquise a situação atual do Brasileirão Série A 2026.
-            2. Identifique qual foi a última rodada finalizada e quais são os jogos da rodada atual/próxima.
-            3. Gere um boletim com tom de narrador de rádio (ex: 'OLHO NO LANCE!', 'HAJA CORAÇÃO!').
+            2. Identifique qual foi a última rodada finalizada e a tabela de classificação (G-4 e Z-4).
+            3. Identifique os jogos da rodada atual e da próxima, buscando especificamente os HORÁRIOS REAIS e DATAS no fuso horário de Brasília (UTC-3).
+            4. Gere um boletim com tom de narrador de rádio (ex: 'OLHO NO LANCE!', 'HAJA CORAÇÃO!').
             
             REGRAS DE FORMATAÇÃO (OBRIGATÓRIO):
-            - TABELA: Crie uma tabela Markdown com as colunas: | Pos | Time | Pts | J | SG |. 
-            - Use as siglas dos times se a tabela ficar larga.
-            - Liste apenas o G-4 e o Z-4 para manter o embed legível no Discord.
-            - Se não encontrar dados reais de 2026, diga que 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
+            - TABELA: Crie uma tabela Markdown compacta: | Pos | Time | Pts | J | SG |. 
+            - Use siglas ou nomes curtos. Liste apenas G-4 e Z-4.
+            - Se não encontrar dados reais de 2026, diga: 'O estagiário tropeçou nos cabos e estamos sem sinal!'.
+
+            REGRAS PARA 'PRÓXIMOS CONFRONTOS':
+            - Liste 3 ou 4 jogos principais.
+            - OBRIGATÓRIO: Inclua o próximo jogo do CORINTHIANS com data e horário confirmados.
+            - SE o Corinthians não jogar na rodada, inclua o próximo jogo de outro grande de SP (São Paulo, Palmeiras ou Santos).
+            - Verifique duas vezes o horário para não cometer erros.
 
             ESTRUTURA DO TEXTO:
             ## 🏆 GIRO DO BRASILEIRÃO 2026
@@ -148,8 +154,8 @@ async def brasileirao(ctx):
             
             [Tabela Markdown]
             
-            ### 🕒 PRÓXIMOS CONFRONTOS
-            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário, e sempre coloque o próximo jogo do Corinthians tambem, se o Corinthians não jogar na rodada coloque outro time de São Paulo, não esqueça de colocar a data e o horário dos jogos.]
+            ### 🕒 PRÓXIMOS CONFRONTOS (Horário de Brasília)
+            [Lista de jogos com Data, Horário e Estádio se disponível]
             """
             
         try:
