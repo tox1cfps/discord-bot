@@ -35,8 +35,9 @@ async def ajuda(ctx):
         "!jornal - Cria o jornal do dia com o que rolou no servidor.\n"
         "!mundo - Eu volto com as noticias mais importantes do dia\n"
         "!brasileirao - exibe as noticias da última rodada e da próxima rodada do campeonato\n"
-        "!bomdia -  envia um bom dia com previsão do tempo e situação do transporte publico em são paulo Capital"
+        "!bomdia -  envia um bom dia com previsão do tempo e situação do transporte publico em são paulo Capital\n"
         "!raio - Expulso um da sala.\n"
+        "!tabela - Mostra a tabela da rodada atual do brasileirão\n"
         "$missao - Te digo minha missão secreta...",
         color=0x3498db,
     )
@@ -148,7 +149,7 @@ async def brasileirao(ctx):
             [Tabela Markdown]
             
             ### 🕒 PRÓXIMOS CONFRONTOS
-            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário]
+            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário, e sempre coloque o próximo jogo do Corinthians tambem, se o Corinthians não jogar na rodada coloque outro time de São Paulo]
             """
             
         try:
@@ -388,7 +389,7 @@ async def bomdia(ctx):
                 embed = discord.Embed(
                     title="🌐 Bom Dia Pira News",
                     description=texto_mundo,
-                    color=0x2ecc71, # Verde "notícia"
+                    color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
                 embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
