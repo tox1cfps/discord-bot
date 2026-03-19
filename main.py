@@ -173,7 +173,7 @@ async def brasileirao(ctx):
                     color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
-                embed.set_footer(text="Dados atualizados em tempo real")
+                embed.set_footer(text="Para tabela digite !tabela")
                 await ctx.send(embed=embed)
             else:
                 partes = [texto_brasileirao[i:i+1900] for i in range(0, len(texto_brasileirao), 1900)]
