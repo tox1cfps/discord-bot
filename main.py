@@ -149,7 +149,7 @@ async def brasileirao(ctx):
             [Tabela Markdown]
             
             ### 🕒 PRÓXIMOS CONFRONTOS
-            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário, e sempre coloque o próximo jogo do Corinthians tambem, se o Corinthians não jogar na rodada coloque outro time de São Paulo]
+            [Liste 3 ou 4 jogos principais da rodada seguinte com data/horário, e sempre coloque o próximo jogo do Corinthians tambem, se o Corinthians não jogar na rodada coloque outro time de São Paulo, não esqueça de colocar a data e o horário dos jogos.]
             """
             
         try:
