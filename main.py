@@ -35,6 +35,8 @@ async def ajuda(ctx):
         description="!perguntar (duvida) - Te respondo uma perguntar\n"
         "!jornal - Cria o jornal do dia com o que rolou no servidor.\n"
         "!mundo - Eu volto com as noticias mais importantes do dia\n"
+        "!brasileirao - exibe as noticias da última rodada e da próxima rodada do campeonato\n"
+        "!bomdia -  envia um bom dia com previsão do tempo e situação do transporte publico em são paulo Capital"
         "!raio - Expulso um da sala.\n"
         "$missao - Te digo minha missão secreta...",
         color=0x3498db,
