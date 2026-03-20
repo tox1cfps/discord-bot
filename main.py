@@ -67,7 +67,7 @@ async def perguntar(ctx, *, pergunta):
 
             if len(texto) <= 4000:
                 embed = discord.Embed(
-                    title="🤖 Resposta de Perguntas",
+                    title="🤖 PiraNews Responde!",
                     description=texto,
                     color=0x3498db,
                     timestamp=datetime.datetime.now()
@@ -78,12 +78,12 @@ async def perguntar(ctx, *, pergunta):
                 partes = [texto[i:i+1900] for i in range(0, len(texto), 1900)]
                 for i, parte in enumerate(partes, 1):
                     embed = discord.Embed(
-                        title=f"🤖 Resposta de Perguntas - Parte {i}/{len(partes)}",
+                        title=f"🤖 PiraNews Responde - Parte {i}/{len(partes)}",
                         description=parte,
                         color=0x3498db,
                         timestamp=datetime.datetime.now()
                     )
-                    embed.set_footer(text="Gerado pelo Gemini AI")
+                    embed.set_footer(text="Gerado pelo PiraNews")
                     await ctx.send(embed=embed)
 
         except Exception as e:
@@ -196,7 +196,7 @@ async def brasileirao(ctx):
                     color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
-                embed.set_footer(text="Para tabela digite !tabela")
+                embed.set_footer(text="Para tabela completa digite !tabela")
                 await ctx.send(embed=embed)
             else:
                 partes = [texto_brasileirao[i:i+1900] for i in range(0, len(texto_brasileirao), 1900)]
@@ -311,7 +311,7 @@ async def mundo(ctx):
                     color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
-                embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
+                embed.set_footer(text="Resumo gerado Pelo PiraNews")
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("🌐 **GIRO GLOBAL PIRA NEWS** (Edição Completa)")
@@ -414,7 +414,7 @@ async def bomdia(ctx):
                     color=0x2ecc71, 
                     timestamp=datetime.datetime.now()
                 )
-                embed.set_footer(text="Resumo gerado via Gemini 2.5 Google Search")
+                embed.set_footer(text="Resumo gerado via PiraNews")
                 await ctx.send(embed=embed)
             else:
                 await ctx.send("🌐 **BOM DIA PIRA NEWS** (Edição Completa)")
