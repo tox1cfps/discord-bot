@@ -72,7 +72,7 @@ async def perguntar(ctx, *, pergunta):
                     color=0x3498db,
                     timestamp=datetime.datetime.now()
                 )
-                embed.set_footer(text="Gerado pelo Gemini AI")
+                embed.set_footer(text="Gerado pelo PiraNews")
                 await ctx.send(embed=embed)
             else:
                 partes = [texto[i:i+1900] for i in range(0, len(texto), 1900)]
