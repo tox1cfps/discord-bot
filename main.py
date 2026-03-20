@@ -65,10 +65,26 @@ async def perguntar(ctx, *, pergunta):
 
             texto = response.text
 
-            partes = [texto[i:i+1900] for i in range(0, len(texto), 1900)]
-
-            for i, parte in enumerate(partes, 1):
-                await ctx.send(f"**Parte {i}/{len(partes)}**\n{parte}")
+            if len(texto) <= 4000:
+                embed = discord.Embed(
+                    title="🤖 Resposta de Perguntas",
+                    description=texto,
+                    color=0x3498db,
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Gerado pelo Gemini AI")
+                await ctx.send(embed=embed)
+            else:
+                partes = [texto[i:i+1900] for i in range(0, len(texto), 1900)]
+                for i, parte in enumerate(partes, 1):
+                    embed = discord.Embed(
+                        title=f"🤖 Resposta de Perguntas - Parte {i}/{len(partes)}",
+                        description=parte,
+                        color=0x3498db,
+                        timestamp=datetime.datetime.now()
+                    )
+                    embed.set_footer(text="Gerado pelo Gemini AI")
+                    await ctx.send(embed=embed)
 
         except Exception as e:
             await ctx.send(f"Erro na memória: {e}")
