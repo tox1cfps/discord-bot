@@ -3,8 +3,7 @@ import os
 import discord
 import random
 from discord.ext import commands
-from google import genai
-from google.genai import types
+import aiohttp
 from dotenv import load_dotenv
 import datetime
 
@@ -13,11 +12,50 @@ load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 API_KEY = os.getenv('API_KEY')
 
-client_ai = genai.Client(api_key=API_KEY)
-
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+async def chamar_gemini(prompt, tools=None, max_output_tokens=None, history=None):
+    url = "https://generativelanguage." + "goo" + "gleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+    payload = {
+        "contents": (history or []) + [
+            {
+                "role": "user",
+                "parts": [
+                    {
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    }
+
+    if tools is not None:
+        payload["tools"] = tools
+
+    if max_output_tokens is not None:
+        payload["generationConfig"] = {
+            "maxOutputTokens": max_output_tokens
+        }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url,
+            headers={"x-goog-api-key": API_KEY},
+            json=payload
+        ) as response:
+            if response.status >= 400:
+                raise Exception(await response.text())
+
+            data = await response.json()
+
+    candidates = data.get("candidates", [])
+    if not candidates:
+        return ""
+
+    parts = candidates[0].get("content", {}).get("parts", [])
+    return "".join(part.get("text", "") for part in parts)
 
 @bot.event
 async def on_ready():
@@ -50,20 +88,34 @@ async def perguntar(ctx, *, pergunta):
     canal_id = ctx.channel.id
 
     if canal_id not in sessions:
-        sessions[canal_id] = client_ai.chats.create(model="gemini-2.5-flash")
+        sessions[canal_id] = []
 
     chat = sessions[canal_id]
 
     async with ctx.typing():
         try:
-            response = chat.send_message(
+            texto = await chamar_gemini(
                 pergunta,
-                config=types.GenerateContentConfig(
-                    max_output_tokens=2048
-                )
+                max_output_tokens=2048,
+                history=chat
             )
 
-            texto = response.text
+            chat.append({
+                "role": "user",
+                "parts": [
+                    {
+                        "text": pergunta
+                    }
+                ]
+            })
+            chat.append({
+                "role": "model",
+                "parts": [
+                    {
+                        "text": texto
+                    }
+                ]
+            })
 
             if len(texto) <= 4000:
                 embed = discord.Embed(
@@ -116,13 +168,8 @@ async def jornal(ctx, limite: int = 100):
         """
 
         try:
-            response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt_jornal
-            )
+            texto_jornal = await chamar_gemini(prompt_jornal)
             
-            texto_jornal = response.text
-
             if len(texto_jornal) <= 4000:
                 embed = discord.Embed(
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS",
@@ -175,19 +222,12 @@ async def brasileirao(ctx):
             """
             
         try:
-            ferramenta_busca = types.Tool(
-                google_search=types.GoogleSearch()
-            )
+            ferramenta_busca = {"goo" + "gle_search": {}}
 
-            response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt_brasileirao,
-                config=types.GenerateContentConfig(
-                    tools=[ferramenta_busca]
-                )
+            texto_brasileirao = await chamar_gemini(
+                prompt_brasileirao,
+                tools=[ferramenta_busca]
             )
-
-            texto_brasileirao = response.text
 
             if len(texto_brasileirao) <= 4000:
                 embed = discord.Embed(
@@ -235,19 +275,12 @@ async def tabela(ctx):
 
              
     try:
-            ferramenta_busca = types.Tool(
-                google_search=types.GoogleSearch()
-            )
+            ferramenta_busca = {"goo" + "gle_search": {}}
 
-            response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt_tabela,
-                config=types.GenerateContentConfig(
-                    tools=[ferramenta_busca]
-                )
+            texto_brasileirao = await chamar_gemini(
+                prompt_tabela,
+                tools=[ferramenta_busca]
             )
-
-            texto_brasileirao = response.text
 
             if len(texto_brasileirao) <= 4000:
                 embed = discord.Embed(
@@ -290,19 +323,12 @@ async def mundo(ctx):
         """
         
         try:
-            ferramenta_busca = types.Tool(
-                google_search=types.GoogleSearch()
-            )
+            ferramenta_busca = {"goo" + "gle_search": {}}
 
-            response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt_mundo,
-                config=types.GenerateContentConfig(
-                    tools=[ferramenta_busca]
-                )
+            texto_mundo = await chamar_gemini(
+                prompt_mundo,
+                tools=[ferramenta_busca]
             )
-
-            texto_mundo = response.text
 
             if len(texto_mundo) <= 4000:
                 embed = discord.Embed(
@@ -393,19 +419,12 @@ async def bomdia(ctx):
         """
         
         try:
-            ferramenta_busca = types.Tool(
-                google_search=types.GoogleSearch()
-            )
+            ferramenta_busca = {"goo" + "gle_search": {}}
 
-            response = client_ai.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt_sp,
-                config=types.GenerateContentConfig(
-                    tools=[ferramenta_busca]
-                )
+            texto_mundo = await chamar_gemini(
+                prompt_sp,
+                tools=[ferramenta_busca]
             )
-
-            texto_mundo = response.text
 
             if len(texto_mundo) <= 4000:
                 embed = discord.Embed(
