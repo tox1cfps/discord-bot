@@ -1,0 +1,24 @@
+[
+    {
+        "id": "bra_hai_2026_06_19",
+        "selecao": "Brasil",
+        "adversario": "Haiti",
+        "data": "2026-06-19",
+        "hora": "21:30",
+        "estadio": "Lincoln Financial Field",
+        "cidade": "Filadélfia",
+        "fase": "Grupo C",
+        "avisado_2h": false
+    },
+    {
+        "id": "sco_bra_2026_06_24",
+        "selecao": "Brasil",
+        "adversario": "Escócia",
+        "data": "2026-06-24",
+        "hora": "19:00",
+        "estadio": "Hard Rock Stadium",
+        "cidade": "Miami",
+        "fase": "Grupo C",
+        "avisado_2h": false
+    }
+]

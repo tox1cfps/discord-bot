@@ -1,16 +1,17 @@
-
+import json
 import os
 import discord
 import random
-from discord.ext import commands
+from discord.ext import commands, tasks
 import aiohttp
 from dotenv import load_dotenv
-import datetime
+from datetime import datetime, timedelta
 
 load_dotenv()
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 API_KEY = os.getenv('API_KEY')
+CANAL_ALERTAS_ID = 1516891642194301106
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -61,9 +62,54 @@ async def chamar_gemini(prompt, tools=None, max_output_tokens=None, history=None
 async def on_ready():
     print(f'We have logged in as {bot.user}')
 
+    if not verificar_jogo_brasil.is_running():
+        verificar_jogo_brasil()
+
 sessions = {}
 
 cooldown_raio_global = None
+
+def carregar_jogos():
+    with open("jogos.json", "r", encoding="utf-8") as file:
+        return json.load(file)
+
+def salvar_jogos(jogos):
+    with open("jogos.json", "w", encoding="utf-8") as file:
+        json.dump(jogos, file, ensure_ascii=False, indent=4)
+
+@tasks.loop(minutes=5)
+async def verificar_jogo_brasil():
+    jogos = carregar_jogos()
+    agora = datetime.now()
+
+    for jogo in jogos:
+        if jogo.get("selecao") != "Brasil":
+            continue
+
+        if jogo.get("avisado_2h"):
+            continue
+
+        data_hora_jogo = datetime.strptime(f"{jogo['data']} {jogo['hora']}"), "%Y-%m-%d %H:%M"
+
+        tempo_restante = data_hora_jogo - agora
+
+        if timedelta(hours=1, minutes=50) <= tempo_restante <= timedelta(hours=2):
+            canal = bot.get_channel(CANAL_ALERTAS_ID)
+
+            if canal:
+                await canal.send(
+                    f"@everyone\n\n"
+                    f"🇧🇷 **IAE CARAI ACORDA! FALTAM 2 HORAS PRO BRASIL!**\n\n"
+                    f"Hoje tem Seleção em campo!\n\n"
+                    f"🇧🇷 **Brasil x {jogo['adversario']}**\n"
+                    f"🕒 **{jogo['hora']}** - Horário de Brasília\n"
+                    f"🏟️ **{jogo.get('estadio', 'Estádio não informado')}**\n\n"
+                    f"PRA CIMA PORRA!"
+                )
+
+                jogo["avisado_2h"] = True
+                salvar_jogos(jogos)
+                
 
 @bot.command()
 async def ajuda(ctx):
@@ -186,6 +232,205 @@ async def jornal(ctx, limite: int = 100):
 
         except Exception as e:
             await ctx.send(f"Erro ao gerar o jornal: {e}")
+
+@bot.command()
+async def copa(ctx):
+    async with ctx.typing():
+        prompt_copa = f"""
+            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')} e o horário atual é {datetime.datetime.now().strftime('%H:%M')} (fuso horário de Brasília UTC-3).
+            Você é um assistente de notícias esportivas para o canal 'PIRA NEWS'.
+
+            TAREFA:
+            1. Pesquise a situação atual da Copa do Mundo vigente.
+            2. Utilize APENAS fontes confiáveis e atualizadas, priorizando sites como G1, Sofascore, FIFA ou outros veículos oficiais de grande credibilidade.
+            3. Identifique os grupos e a classificação atual das principais seleções: Brasil, Argentina, Alemanha, França e Inglaterra.
+            4. Identifique todos os jogos que já aconteceram no dia atual e faça um breve resumo do resultado e dos principais acontecimentos.
+            5. Identifique os jogos que ainda irão acontecer no dia atual considerando o horário atual da consulta.
+            6. Destaque obrigatoriamente os jogos que acontecerão nas próximas horas (exemplo: se o horário atual for 14:00 e houver jogo às 16:00, trate como "OLHO NO LANCE" e dê destaque especial).
+            7. Busque os horários REAIS das partidas e converta para o horário de Brasília (UTC-3) quando necessário.
+            8. Gere um boletim em tom de narrador de rádio esportivo (exemplos: "OLHO NO LANCE!", "HAJA CORAÇÃO!", "A BOLA VAI ROLAR!").
+
+            REGRAS DE VERIFICAÇÃO (OBRIGATÓRIO):
+            - Confira informações de tabela, grupos, datas e horários em pelo menos duas fontes confiáveis.
+            - Nunca invente placares, jogos ou horários.
+            - Caso não encontre dados reais ou atualizados da Copa do Mundo, diga exatamente:
+            "O estagiário tropeçou nos cabos e estamos sem sinal!"
+
+            REGRAS DE FORMATAÇÃO DAS TABELAS:
+            - Crie uma tabela Markdown compacta no formato:
+            | Pos | Seleção | Pts | J | SG |
+            - Utilize APENAS siglas dos países em PT-BR para evitar problemas de quebra de Markdown.
+            - Exemplo: BRA, ARG, ALE, FRA, ING.
+            - Gere uma tabela separada para cada grupo onde estiverem:
+            - Brasil
+            - Argentina
+            - Alemanha
+            - França
+            - Inglaterra
+            - Mostre somente os grupos dessas seleções, não a classificação completa do torneio.
+
+            REGRAS PARA O RESUMO DOS JOGOS DO DIA:
+            - Para jogos encerrados:
+            - Informe o placar.
+            - Faça um resumo curto do confronto (máximo 2 frases por jogo).
+            - Destaque resultados surpreendentes ou classificações importantes.
+
+            - Para jogos que ainda irão acontecer:
+            - Liste a data, horário em Brasília e estádio (se disponível).
+            - Dê maior destaque aos jogos que acontecerão em até 3 horas após o momento da consulta.
+            - Caso existam jogos das seleções Brasil, Argentina, Alemanha, França ou Inglaterra no dia, eles devem aparecer obrigatoriamente.
+
+            ESTRUTURA OBRIGATÓRIA DA RESPOSTA:
+
+            ## 🌎 GIRO DA COPA DO MUNDO
+
+            [Abertura em estilo de narração de rádio comentando os principais acontecimentos do dia, a disputa nos grupos e os destaques do torneio.]
+
+            ### 📊 SITUAÇÃO DOS GRUPOS
+
+            [Uma tabela Markdown para cada grupo das seleções: BRA, ARG, ALE, FRA e ING]
+
+            ### 🎙️ JOGOS DE HOJE
+
+            #### ✅ RESULTADOS DO DIA
+            [Resumo dos jogos já encerrados no dia]
+
+            #### 🔥 OLHO NO LANCE! (Próximas horas)
+            [Destaque dos jogos que começarão em breve]
+
+            #### 🕒 PRÓXIMOS CONFRONTOS DO DIA (Horário de Brasília)
+            [Lista dos demais jogos que ainda irão acontecer hoje com Data, Horário e Estádio se disponível]
+
+            Finalizar sempre o boletim com uma frase de encerramento em clima de rádio esportiva.
+            """
+        
+        try:
+            ferramenta_busca = {"goo" + "gle_search": {}}
+
+            texto_copa = await chamar_gemini(
+                prompt_copa,
+                tools=[ferramenta_busca]
+            )
+
+            if len(texto_copa) <= 4000:
+                embed = discord.Embed(
+                    title="📰 EDIÇÃO EXTRA: PIRA NEWS COPA DO MUNDO",
+                    description=texto_copa,
+                    color=0x2ecc71, 
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Para tabela completa digite !tabelacopa")
+                await ctx.send(embed=embed)
+            else:
+                partes = [texto_copa[i:i+1900] for i in range(0, len(texto_copa), 1900)]
+                for parte in partes:
+                    await ctx.send(parte)
+
+        except Exception as e:
+            await ctx.send(f"O Luiz está mentindo mais uma vez: {e}")
+
+
+@bot.command()
+async def tabelacopa(ctx):
+    async with ctx.typing():
+        prompt_tabela = f""""
+            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+            Você é um especialista em dados esportivos.
+
+            TAREFA:
+            1. Pesquise a tabela de classificação atualizada da Copa do Mundo vigente.
+            2. Pesquise em fontes confiáveis e atualizadas, priorizando FIFA, G1, Globo Esporte, Sofascore ou ESPN.
+            3. Identifique TODOS os grupos da competição.
+            4. Gere EXCLUSIVAMENTE uma tabela em Markdown para cada grupo.
+            5. Use a classificação atual de cada grupo considerando os critérios oficiais da FIFA.
+
+            REGRAS DE FORMATAÇÃO:
+            - Retorne APENAS as tabelas dos grupos.
+            - Não escreva saudações, análises, notícias, explicações ou comentários.
+            - Se a informação não for encontrada ou não estiver atualizada, retorne apenas:
+            "O estagiário tropeçou nos cabos e estamos sem sinal!".
+            - Use siglas dos países em PT-BR para evitar quebra de visualização no Discord.
+            - Use sempre siglas curtas de 3 letras quando possível.
+            - Exemplos de siglas:
+            BRA = Brasil
+            ARG = Argentina
+            ALE = Alemanha
+            FRA = França
+            ING = Inglaterra
+            EUA = Estados Unidos
+            POR = Portugal
+            ESP = Espanha
+            ITA = Itália
+            HOL = Holanda
+            BEL = Bélgica
+            CRO = Croácia
+            URU = Uruguai
+            COL = Colômbia
+            MEX = México
+            JAP = Japão
+            COR = Coreia do Sul
+            AUS = Austrália
+            MAR = Marrocos
+            SEN = Senegal
+            SUI = Suíça
+            POL = Polônia
+            - Todas as tabelas devem estar dentro de um único bloco de código Markdown com crases triplas.
+            - Mantenha a ordem oficial de classificação dos grupos.
+            - Não use emojis dentro do bloco de código.
+            - Não adicione fontes, links ou observações no final.
+
+            COLUNAS OBRIGATÓRIAS:
+            | Pos | Seleção | Pts | J | V | E | D | SG |
+
+            ESTRUTURA DE SAÍDA OBRIGATÓRIA:
+
+            ### 🌎 TABELA DA COPA DO MUNDO - FASE DE GRUPOS
+
+            ```md
+            ### Grupo A
+            | Pos | Seleção | Pts | J | V | E | D | SG |
+            |-----|----------|-----|---|---|---|---|----|
+            | 1 | XXX | XX | X | X | X | X | XX |
+            | 2 | XXX | XX | X | X | X | X | XX |
+            | 3 | XXX | XX | X | X | X | X | XX |
+            | 4 | XXX | XX | X | X | X | X | XX |
+
+            ### Grupo B
+            | Pos | Seleção | Pts | J | V | E | D | SG |
+            |-----|----------|-----|---|---|---|---|----|
+            | 1 | XXX | XX | X | X | X | X | XX |
+            | 2 | XXX | XX | X | X | X | X | XX |
+            | 3 | XXX | XX | X | X | X | X | XX |
+            | 4 | XXX | XX | X | X | X | X | XX |
+
+            (... repetir o mesmo padrão até o último grupo da competição vigente)
+            ```
+            """
+
+        try:
+            ferramenta_busca = {"goo" + "gle_search": {}}
+
+            texto_tabela = await chamar_gemini(
+                prompt_tabela,
+                tools=[ferramenta_busca]
+            )
+
+            if len(texto_tabela) <= 4000:
+                embed = discord.Embed(
+                    title="📰 EDIÇÃO EXTRA: PIRA NEWS COPA DO MUNDO",
+                    description=texto_tabela,
+                    color=0x2ecc71, 
+                    timestamp=datetime.datetime.now()
+                )
+                embed.set_footer(text="Dados atualizados em tempo real")
+                await ctx.send(embed=embed)
+            else:
+                partes = [texto_tabela[i:i+1900] for i in range(0, len(texto_tabela), 1900)]
+                for parte in partes:
+                    await ctx.send(parte)
+
+        except Exception as e:
+                await ctx.send(f"O Luiz está mentindo mais uma vez: {e}")
 
 @bot.command()
 async def brasileirao(ctx):
@@ -357,7 +602,7 @@ async def raio(ctx):
 
         if tempo_passado < datetime.timedelta(hours=1):
             restante = datetime.timedelta(hours=1) - tempo_passado
-            minutos = int(restante.total_seconds() // 60)
+            minutos = int(restante.total_seconds() // 5)
             await ctx.message.delete()
             return await ctx.send(
                 f"⏳ O raio está recarregando! Aguarde {minutos} minutos para usar novamente."
