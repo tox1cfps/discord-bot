@@ -89,7 +89,10 @@ async def verificar_jogo_brasil():
         if jogo.get("avisado_2h"):
             continue
 
-        data_hora_jogo = datetime.strptime(f"{jogo['data']} {jogo['hora']}"), "%Y-%m-%d %H:%M"
+        data_hora_jogo = datetime.strptime(
+            f"{jogo['data']} {jogo['hora']}",
+            "%Y-%m-%d %H:%M"
+        )
 
         tempo_restante = data_hora_jogo - agora
 
@@ -168,7 +171,7 @@ async def perguntar(ctx, *, pergunta):
                     title="🤖 PiraNews Responde!",
                     description=texto,
                     color=0x3498db,
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Gerado pelo PiraNews")
                 await ctx.send(embed=embed)
@@ -179,7 +182,7 @@ async def perguntar(ctx, *, pergunta):
                         title=f"🤖 PiraNews Responde - Parte {i}/{len(partes)}",
                         description=parte,
                         color=0x3498db,
-                        timestamp=datetime.datetime.now()
+                        timestamp=datetime.now()
                     )
                     embed.set_footer(text="Gerado pelo PiraNews")
                     await ctx.send(embed=embed)
@@ -221,7 +224,7 @@ async def jornal(ctx, limite: int = 100):
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS",
                     description=texto_jornal,
                     color=0x3498db,
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 await ctx.send(embed=embed)
             else:
@@ -237,7 +240,7 @@ async def jornal(ctx, limite: int = 100):
 async def copa(ctx):
     async with ctx.typing():
         prompt_copa = f"""
-            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')} e o horário atual é {datetime.datetime.now().strftime('%H:%M')} (fuso horário de Brasília UTC-3).
+            Hoje é {datetime.now().strftime('%d de %B de %Y')} e o horário atual é {datetime.now().strftime('%H:%M')} (fuso horário de Brasília UTC-3).
             Você é um assistente de notícias esportivas para o canal 'PIRA NEWS'.
 
             TAREFA:
@@ -317,7 +320,7 @@ async def copa(ctx):
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS COPA DO MUNDO",
                     description=texto_copa,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Para tabela completa digite !tabelacopa")
                 await ctx.send(embed=embed)
@@ -334,7 +337,7 @@ async def copa(ctx):
 async def tabelacopa(ctx):
     async with ctx.typing():
         prompt_tabela = f""""
-            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+            Hoje é {datetime.now().strftime('%d de %B de %Y')}. 
             Você é um especialista em dados esportivos.
 
             TAREFA:
@@ -420,7 +423,7 @@ async def tabelacopa(ctx):
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS COPA DO MUNDO",
                     description=texto_tabela,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Dados atualizados em tempo real")
                 await ctx.send(embed=embed)
@@ -436,7 +439,7 @@ async def tabelacopa(ctx):
 async def brasileirao(ctx):
     async with ctx.typing():
         prompt_brasileirao = f"""
-            Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+            Hoje é {datetime.now().strftime('%d de %B de %Y')}. 
             Você é um assistente de notícias esportivas para o canal 'PIRA NEWS'.
             
             TAREFA:
@@ -479,7 +482,7 @@ async def brasileirao(ctx):
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
                     description=texto_brasileirao,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Para tabela completa digite !tabela")
                 await ctx.send(embed=embed)
@@ -495,7 +498,7 @@ async def brasileirao(ctx):
 async def tabela(ctx):
     async with ctx.typing():
         prompt_tabela = f"""
-                Hoje é {datetime.datetime.now().strftime('%d de %B de %Y')}. 
+                Hoje é {datetime.now().strftime('%d de %B de %Y')}. 
                 Você é um especialista em dados esportivos.
 
                 TAREFA:
@@ -532,7 +535,7 @@ async def tabela(ctx):
                     title="📰 EDIÇÃO EXTRA: PIRA NEWS BRASILEIRÃO",
                     description=texto_brasileirao,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Dados atualizados em tempo real")
                 await ctx.send(embed=embed)
@@ -549,7 +552,7 @@ async def tabela(ctx):
 async def mundo(ctx):
     async with ctx.typing():
         prompt_mundo = f"""
-        Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
+        Hoje é {datetime.now().strftime('%d/%m/%Y')}.
         Sua tarefa é atuar como um correspondente internacional de inteligência artificial.
 
         PESQUISE E RESUMA:
@@ -580,7 +583,7 @@ async def mundo(ctx):
                     title="🌐 Giro Global Pira News",
                     description=texto_mundo,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Resumo gerado Pelo PiraNews")
                 await ctx.send(embed=embed)
@@ -595,13 +598,13 @@ async def mundo(ctx):
 async def raio(ctx):
     global cooldown_raio_global 
 
-    agora = datetime.datetime.now()
+    agora = datetime.now()
 
     if cooldown_raio_global is not None:
         tempo_passado = agora - cooldown_raio_global
 
-        if tempo_passado < datetime.timedelta(hours=1):
-            restante = datetime.timedelta(hours=1) - tempo_passado
+        if tempo_passado < timedelta(hours=1):
+            restante = timedelta(hours=1) - tempo_passado
             minutos = int(restante.total_seconds() // 5)
             await ctx.message.delete()
             return await ctx.send(
@@ -641,11 +644,11 @@ async def raio(ctx):
 async def bomdia(ctx):
     async with ctx.typing():
         prompt_sp = f"""
-        Hoje é {datetime.date.today().strftime('%d/%m/%Y')}.
+        Hoje é {datetime.now().strftime('%d/%m/%Y')}.
         Sua tarefa é atuar como um locutor de rádio extremamente animado e bem-informado, focado exclusivamente na cidade de São Paulo.
 
         SAUDAÇÃO E AMBIENTAÇÃO:
-        1. Comece com um "Bom dia, Pira News!" cheio de energia, mencionando a data de hoje ({datetime.date.today().strftime('%d/%m/%Y')}).
+        1. Comece com um "Bom dia, Pira News!" cheio de energia, mencionando a data de hoje ({datetime.now().strftime('%d/%m/%Y')}).
         2. Informe a previsão do tempo para a capital paulista (Temperatura atual e variação para o dia).
         3. Dê um panorama rápido sobre a situação das principais linhas de Metrô, CPTM e trânsito (considere apenas a capital).
         4. No final sempre diga que o luiz ja acordou espalhando mentiras.
@@ -676,7 +679,7 @@ async def bomdia(ctx):
                     title="🌐 Bom Dia Pira News",
                     description=texto_mundo,
                     color=0x2ecc71, 
-                    timestamp=datetime.datetime.now()
+                    timestamp=datetime.now()
                 )
                 embed.set_footer(text="Resumo gerado via PiraNews")
                 await ctx.send(embed=embed)
