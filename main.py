@@ -113,6 +113,12 @@ async def verificar_jogo_brasil():
                 jogo["avisado_2h"] = True
                 salvar_jogos(jogos)
                 
+@bot.command()
+@commands.has_permissions(mention_everyone=True)
+async def test_everyone(ctx):
+    canal = bot.get_channel(CANAL_ALERTAS_ID)
+    await canal.send("@everyone to testando essa merda vcs que se foda luiz")
+    await ctx.send("testei fodase")
 
 @bot.command()
 async def ajuda(ctx):
