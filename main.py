@@ -63,7 +63,7 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
 
     if not verificar_jogo_brasil.is_running():
-        verificar_jogo_brasil()
+        verificar_jogo_brasil.start()
 
 sessions = {}
 
